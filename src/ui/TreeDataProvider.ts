@@ -2,23 +2,20 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import Linear from '../services/linear/linear';
-import { Issue } from '@linear/sdk';
+import { Issue, WorkflowState } from '@linear/sdk';
 
 class IssueType extends vscode.TreeItem {
   constructor(
     public readonly title: string,
   ) {
     super(title, title.startsWith('Current') ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed);
+    this.iconPath = path.join(__filename, '..', '..', '..', 'media', title.startsWith('Current') ? 'sprint.svg' : 'list.svg');
   }
 
   public get type() {
     return 'issuetype';
   }
 
-  iconPath = {
-    light: path.join(__filename, '..', '..', 'media', 'light', 'dependency.svg'),
-		dark: path.join(__filename, '..', '..', 'media', 'dark', 'dependency.svg')
-  };
 }
 
 export class LinearIssue extends vscode.TreeItem {
@@ -27,6 +24,7 @@ export class LinearIssue extends vscode.TreeItem {
   constructor(
     public readonly title: string,
     public readonly _issue: Issue,
+    public readonly status?: WorkflowState,
     public readonly description?: string,
   ) {
     super(title, vscode.TreeItemCollapsibleState.None);
@@ -38,16 +36,17 @@ export class LinearIssue extends vscode.TreeItem {
       command: 'ticket-connect.openTicketInWebView',
       arguments: [this.issue]
     };
+    
+    const statusType = status?.type;
+    this.iconPath = path.join(__filename, '..', '..', '..', 'media', 
+      statusType === 'completed' ? 'full_circle.svg' : statusType === 'started' ? 'half_circle.svg' : 'empty_circle.svg'
+    );
   }
 
   public get type() {
     return 'issue';
   }
 
-  iconPath = {
-    light: path.join(__filename, '..', '..', '..', 'media', 'empty_circle.svg'),
-    dark: path.join(__filename, '..', '..', '..', 'media', 'empty_circle.svg')
-  };
 }
 
 const currentSprintTitle = 'Current Sprint';
@@ -70,12 +69,10 @@ export class LinearIssueProvider implements vscode.TreeDataProvider<LinearIssue 
   }
 
   getTreeItem(element: LinearIssue): vscode.TreeItem {
-    console.log('Gti');
     return element;
   }
 
   getChildren(element?: LinearIssue | IssueType): Thenable<LinearIssue[] | IssueType[]> {
-    console.log('Gc');
     if (element?.type === 'issuetype') {
       if (element.title === currentSprintTitle) {return Promise.resolve(this.getIssues('current'));}
       else {return Promise.resolve(this.getIssues('all'));};
@@ -88,8 +85,11 @@ export class LinearIssueProvider implements vscode.TreeDataProvider<LinearIssue 
    */
   private async getIssues(type: 'current' | 'all'): Promise<LinearIssue[]> {
     const issues = type === 'current' ? await this.#linear.getAllIssuesInCurrentSprint() : await this.#linear.getAllIssues();
-    console.log('gotIssues');
-    return issues.map(issue => new LinearIssue(issue.title, issue, issue.description));
+    const issueAndStates = await Promise.all(issues.map(async (issue) => ({ issue, state: await issue.state })));
+    return issueAndStates.map((issueAndState) => {
+      const issue = issueAndState.issue;
+      return new LinearIssue(issue.title, issue, issueAndState.state,issue.description);
+    });
   }
 
 }

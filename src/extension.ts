@@ -39,8 +39,6 @@ export function activate(context: vscode.ExtensionContext) {
 
           const branches = stdout.split("/");
 
-          console.log("branches", branches);
-
           if (branches.length <= 1) {
             console.log("incorrect branch format");
             return;
@@ -86,31 +84,31 @@ export function activate(context: vscode.ExtensionContext) {
       console.log("got", issue);
 
       // Create and show a new webview
-      const panel = vscode.window.createWebviewPanel(
-        "ticketDetails", // Identifies the type of the webview. Used internally
-        "Ticket Details", // Title of the panel displayed to the user
-        vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
-        {
-          enableScripts: true,
-        }
-      );
-      const comments = await issue.comments();
-      panel.webview.html = getWebviewContent(issue, comments.nodes);
+	const panel = vscode.window.createWebviewPanel(
+		'ticketDetails', // Identifies the type of the webview. Used internally
+		'Ticket Details', // Title of the panel displayed to the user
+		vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
+		{
+			enableScripts: true,
+		}
+	);
+	const [comments, state] = await Promise.all([issue.comments(), issue.state]);
+	panel.webview.html = getWebviewContent(issue, comments.nodes, state);
 
-      panel.webview.onDidReceiveMessage(
-        (message) => {
-          switch (message.command) {
-            case "openineditor":
-              vscode.commands.executeCommand(
-                "ticket-connect.openTicketInEditor",
-                [issue.branchName]
-              );
-              return;
-          }
-        },
-        undefined,
-        context.subscriptions
-      );
+	panel.webview.onDidReceiveMessage(
+		(message) => {
+			switch (message.command) {
+			case "openineditor":
+				vscode.commands.executeCommand(
+				"ticket-connect.openTicketInEditor",
+				[issue.branchName]
+				);
+				return;
+			}
+		},
+		undefined,
+		context.subscriptions
+	);
     }
   );
 

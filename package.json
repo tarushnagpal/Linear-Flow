@@ -18,7 +18,7 @@
         {
           "id": "ticket-explorer",
           "title": "Ticket Explorer",
-          "icon": "src/media/linear1.png"
+          "icon": "media/linear1.png"
         }
       ]
     },
