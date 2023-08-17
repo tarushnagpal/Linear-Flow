@@ -8,7 +8,14 @@ export function getWebviewContent(issue: Issue, comments: Comment[]) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Ticket Details</title>
-        <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/lib/marked.umd.min.js"></script>
+        <script>
+            function openInEditor() {
+                const vscode = acquireVsCodeApi();
+                vscode.postMessage({
+                    command: 'openineditor'
+                })
+            }
+        </script>
     </head>
     <body>
         <div style="height: 100vh; width: 85vw; display: flex; flex-direction: column; align-items: space-between; background-color:rgb(25, 26, 35); padding: 10% 5%;" id="container">
@@ -22,7 +29,7 @@ export function getWebviewContent(issue: Issue, comments: Comment[]) {
                     }</div>`);
                 })}
             </div>
-            <div><u>Open in editor</u></div>
+            <div onclick="openInEditor()" style="color:rgb(210,211,224); font-size: 15px;"><u>Open in editor</u></div>
         </div>
     </body>
     </html>`;

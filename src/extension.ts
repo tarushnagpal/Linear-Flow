@@ -52,6 +52,18 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 		const comments = await issue.comments();
 		panel.webview.html = getWebviewContent(issue, comments.nodes);
+
+		panel.webview.onDidReceiveMessage(
+			message => {
+			  switch (message.command) {
+				case 'openineditor':
+				  vscode.commands.executeCommand('ticket-connect.openTicketInEditor', [issue]);
+				  return;
+			  }
+			},
+			undefined,
+			context.subscriptions
+		);
 	});
 
 	vscode.commands.registerCommand('ticket-connect.openTicketInEditor', async () => {
