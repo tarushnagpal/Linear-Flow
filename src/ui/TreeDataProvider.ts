@@ -45,8 +45,8 @@ export class LinearIssue extends vscode.TreeItem {
   }
 
   iconPath = {
-    light: path.join(__filename, '..', '..', 'media', 'light', 'dependency.svg'),
-		dark: path.join(__filename, '..', '..', 'media', 'dark', 'dependency.svg')
+    light: path.join(__filename, '..', '..', '..', 'media', 'empty_circle.svg'),
+    dark: path.join(__filename, '..', '..', '..', 'media', 'empty_circle.svg')
   };
 }
 

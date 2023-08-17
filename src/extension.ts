@@ -69,9 +69,8 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log('got', branchName);
 		// const branchName = issue.branchName;
 
-		const baseFolder = '/Users/akshit/dyte';
-
-		exec(`ls ${baseFolder}`, (err, stdout, stderr) => {
+		const pwd = vscode.workspace.workspaceFolders![0].uri.path;
+		exec(`ls ${pwd}/../`, (err, stdout, stderr) => {
 			if (err) {
 				console.log('err', err);
 				return;
@@ -80,47 +79,43 @@ export function activate(context: vscode.ExtensionContext) {
 			const folders = stdout.split('\n').filter((x) => x);
 
 			const quickPick = vscode.window.createQuickPick();
-			quickPick.items = folders.map((folder) => ({ label: `${baseFolder}/${folder}` }));
+			quickPick.items = folders.map((folder) => ({ label: `${folder}` }));
 			
 			quickPick.onDidChangeSelection((selection) => {
-				const folderPath = selection[0].label;
-
-				exec(`cd ${folderPath} && git checkout -b ${branchName}`, (err, stdout, stderr) => {
+				quickPick.busy = true;
+				const folderPath = pwd + '/../' + selection[0].label;
+				exec(`cd ${folderPath} && git checkout -b ${branchName} && git commit -m "branch created from ticket-connect" --allow-empty --no-verify && git push origin ${branchName}`, (err, stdout, stderr) => {
 					if (err) {
 						console.log('err', err);
 						return;
 					}
+					quickPick.busy = false;
+					const uri = vscode.Uri.file(folderPath);
+					vscode.commands.executeCommand('vscode.openFolder', uri);
+					quickPick.hide();
 				});
 
-				exec(`cd ${folderPath} && git commit -m "branch created from ticket-connect" --allow-empty`, (err, stdout, stderr) => {
-					if (err) {
-						console.log('err', err);
-						return;
-					}
+				// exec(`cd ${folderPath} && git commit -m "branch created from ticket-connect" --allow-empty`, (err, stdout, stderr) => {
+				// 	if (err) {
+				// 		console.log('err', err);
+				// 		return;
+				// 	}
 
-					console.log('stdout', stdout);
+				// 	console.log('stdout', stdout);
 
-					exec('pwd', (err, stdout, stderr) => {
-						console.log('pwd', stdout);
-					});
-
-					exec(`cd ${folderPath} && git push origin ${branchName}`, (err, stdout, stderr) => {
-						if (err) {
-							console.log('err', err);
-							return;
-						}
-					});
-				});
+				// 	exec(`cd ${folderPath} && git push origin ${branchName}`, (err, stdout, stderr) => {
+				// 		if (err) {
+				// 			console.log('err', err);
+				// 			return;
+				// 		}
+				// 	});
+				// });
 				
-				
-				const uri = vscode.Uri.file(folderPath);
-				vscode.commands.executeCommand('vscode.openFolder', uri);
-				quickPick.hide();
 			});
 
 			quickPick.onDidHide(() => quickPick.dispose());
 			quickPick.show();
-		});
+		});	
 	});
 	
 }
