@@ -15,8 +15,8 @@ class IssueType extends vscode.TreeItem {
   }
 
   iconPath = {
-    light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-    dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+    light: path.join(__filename, '..', '..', 'media', 'light', 'dependency.svg'),
+		dark: path.join(__filename, '..', '..', 'media', 'dark', 'dependency.svg')
   };
 }
 
@@ -34,8 +34,8 @@ class LinearIssue extends vscode.TreeItem {
   }
 
   iconPath = {
-    light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-    dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+    light: path.join(__filename, '..', '..', 'media', 'light', 'dependency.svg'),
+		dark: path.join(__filename, '..', '..', 'media', 'dark', 'dependency.svg')
   };
 }
 

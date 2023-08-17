@@ -1,8 +1,15 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { exec } from 'child_process';
+
 import * as vscode from 'vscode';
 import { LinearIssueProvider } from './ui/TreeDataProvider';
 import { getWebviewContent } from './ui/TicketDetailWebView';
+
+// checkout the branch
+// push the branch with one commit
+// create a PR
+// take input of folder that needs to be opened
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -30,6 +37,27 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 		// panel.webview.html = getWebviewContent();
 	  }), vscode.commands.registerCommand('ticket-connect.openTicketInEditor', async () => {
+		exec('cd /Users/akshit/Desktop/test-repo && git checkout -b test-branch-3');
+		exec('cd /Users/akshit/Desktop/test-repo && git commit -m "test commit" --allow-empty', (err, stdout, stderr) => {
+			if (err) {
+				return;
+			}
+			exec('cd /Users/akshit/Desktop/test-repo && git push origin test-branch-3');
+		});
+
+		exec('ls /Users/akshit/dyte', (err, stdout, stderr) => {
+			if (err) {
+				return;
+			}
+
+			const folders = stdout.split('\n').filter((x) => x);
+
+			const quickPick = vscode.window.createQuickPick();
+			quickPick.items = folders.map((folder) => ({ label: `/Users/akshit/dyte/${folder}` }));
+			
+			quickPick.onDidHide(() => quickPick.dispose());
+			quickPick.show();
+		});
 		// let uri = vscode.Uri.file('');
 		// let success = await vscode.commands.executeCommand('vscode.openFolder', uri);
 	  }));
