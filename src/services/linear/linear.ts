@@ -1,7 +1,11 @@
 require("dotenv").config();
 
 import { LinearClient, LinearFetch, User, Issue, Team } from "@linear/sdk";
-import { NullableCycleFilter } from "@linear/sdk/dist/_generated_documents";
+import {
+  IdComparator,
+  NullableCycleFilter,
+  PaginationOrderBy,
+} from "@linear/sdk/dist/_generated_documents";
 
 // get all issues
 // attach a sub issue to an issue
@@ -30,7 +34,9 @@ class Linear {
   }
 
   async getAllIssues(): Promise<Issue[]> {
-    const myIssues = await this.me.assignedIssues();
+    const myIssues = await this.me.assignedIssues({
+        orderBy: PaginationOrderBy.CreatedAt,
+    });
 
     return myIssues.nodes;
   }
@@ -47,7 +53,11 @@ class Linear {
 
       return (
         await this.me.assignedIssues({
-          filter: { cycle: { id: activeSprint.id } as NullableCycleFilter },
+          filter: {
+            cycle: {
+              id: { eq: activeSprint.id } as IdComparator,
+            } as NullableCycleFilter,
+          },
         })
       ).nodes;
     });
@@ -57,57 +67,58 @@ class Linear {
 
     return issues;
   }
+
+  async getSubIssuesOfIssues(issueId: string): Promise<Issue[]> {
+    const issue = await this.me.assignedIssues({
+      filter: {
+        parent: { id: { eq: issueId } as IdComparator } as NullableCycleFilter,
+      },
+    });
+
+    return issue.nodes;
+  }
+
+  async addSubIssueToIssue(teamId: string, parentIssueId: string) {
+    await this.linearClient.createIssue({
+      teamId: teamId,
+      parentId: parentIssueId,
+      title: "Test Sub Issue",
+      assigneeId: this.me.id,
+    });
+  }
+
+  async addStartCommentToIssue(issueId: string) {
+    await this.linearClient.createComment({
+        issueId: issueId,
+        body: "Started at: " + new Date().toLocaleString(),
+    });
+  }
 }
-
-// const linearClient = new LinearClient({ apiKey: process.env.LINEAR_API_KEY });
-
-// async function getMyIssues() {
-//   const me = await linearClient.viewer;
-//   const myIssues = await me.assignedIssues({
-//     filter: {
-//       cycle,
-//     },
-//   });
-
-//   if (myIssues.nodes.length) {
-//     myIssues.nodes.map((issue) =>
-//       console.log(`${me.displayName} has issue: ${issue.title}`)
-//     );
-//   } else {
-//     console.log(`${me.displayName} has no issues`);
-//   }
-
-//   const ts = await linearClient.teams();
-
-//   ts.nodes.map(async (t) => {
-//     if (t.name === "Socket and Livestreaming") {
-//       console.log(t.name);
-
-//       const cycles = await t.cycles();
-
-//       const now = new Date();
-
-//       cycles.nodes.map((c) => {
-//         if (c.startsAt <= now && c.endsAt > now) {
-//           console.log(c);
-//         }
-//       });
-//     }
-//   });
-// }
 
 (async () => {
   const l = new Linear(process.env.LINEAR_API_KEY as string);
 
   await l.init();
 
-  l.info();
-
-  //   const issues = await l.getAllIssues();
-
-  //   issues.map((i) => console.log(i));
-
   const issues = await l.getAllIssuesInCurrentSprint();
 
-  issues.map((i) => console.log(i.title));
+  issues.map(async (i) => {
+    const team = await i.team;
+
+    if (team?.name === "Socket and Livestreaming") {
+      console.log(`team id: ${team.id}`);
+
+      console.log(`issue title: ${i.title} id: ${i.id}`);
+    }
+  });
+
+  //   await l.addSubIssueToIssue("c4196cb6-0690-4265-bf6a-678a033c40fc", "2f7a26d1-c460-4f44-bc4f-80bb5dc4e92b");
+
+  const subIssues = await l.getSubIssuesOfIssues(
+    "2f7a26d1-c460-4f44-bc4f-80bb5dc4e92b"
+  );
+
+  console.log(subIssues);
+
+    await l.addStartCommentToIssue(subIssues[0].id);
 })();
