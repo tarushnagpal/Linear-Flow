@@ -9,13 +9,48 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:linearIssues"
+  ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ticket-explorer",
+          "title": "Ticket Explorer",
+          "icon": "media/dep.svg"
+        }
+      ]
+    },
+    "views": {
+      "ticket-explorer": [
+        {
+          "id": "linearIssues",
+          "name": "Linear Issues",
+          "icon": "media/dep.svg",
+          "contextualTitle": "Package Explorer"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "linearIssues",
+        "contents": "No linear api key found; [find key](https://linear.app/dyte/settings/api).\n[Add Linear Key](command:ticket-connect.inputLinearApiKey)"
+      }
+    ],
     "commands": [
       {
-        "command": "ticket-connect.helloWorld",
-        "title": "Hello World"
+        "command": "ticket-connect.inputLinearApiKey",
+        "title": "Input Linear Key"
+      },
+      {
+        "command": "ticket-connect.showTicket",
+        "title": "Show Current Ticket"
+      },
+      {
+        "command": "ticket-connect.openTicketInEditor",
+        "title": "Open Current TIcket in Editor"
       }
     ]
   },

@@ -12,12 +12,13 @@ import {
 // comment on that issue the started time
 // fetch the details for the sub issue like the id, checkout branch
 
-class Linear {
+export default class Linear {
   linearClient: LinearClient;
   me: User = {} as User;
   teams: Team[] = [];
 
   constructor(apiKey: string) {
+    console.log('test', apiKey);
     this.linearClient = new LinearClient({ apiKey });
   }
 
@@ -103,30 +104,55 @@ class Linear {
   }
 }
 
-(async () => {
-  const l = new Linear(process.env.LINEAR_API_KEY as string);
+// const linearClient = new LinearClient({ apiKey: process.env.LINEAR_API_KEY });
 
-  await l.init();
+// async function getMyIssues() {
+//   const me = await linearClient.viewer;
+//   const myIssues = await me.assignedIssues({
+//     filter: {
+//       cycle,
+//     },
+//   });
 
-  const issues = await l.getAllIssuesInCurrentSprint();
+//   if (myIssues.nodes.length) {
+//     myIssues.nodes.map((issue) =>
+//       console.log(`${me.displayName} has issue: ${issue.title}`)
+//     );
+//   } else {
+//     console.log(`${me.displayName} has no issues`);
+//   }
 
-  issues.map(async (i) => {
-    const team = await i.team;
+//   const ts = await linearClient.teams();
 
-    if (team?.name === "Socket and Livestreaming") {
-      console.log(`team id: ${team.id}`);
+//   ts.nodes.map(async (t) => {
+//     if (t.name === "Socket and Livestreaming") {
+//       console.log(t.name);
 
-      console.log(`issue title: ${i.title} id: ${i.id}`);
-    }
-  });
+//       const cycles = await t.cycles();
 
-  //   await l.addSubIssueToIssue("c4196cb6-0690-4265-bf6a-678a033c40fc", "2f7a26d1-c460-4f44-bc4f-80bb5dc4e92b");
+//       const now = new Date();
 
-//   const subIssues = await l.getSubIssuesOfIssues(
-//     "2f7a26d1-c460-4f44-bc4f-80bb5dc4e92b"
-//   );
+//       cycles.nodes.map((c) => {
+//         if (c.startsAt <= now && c.endsAt > now) {
+//           console.log(c);
+//         }
+//       });
+//     }
+//   });
+// }
 
-//   console.log(subIssues);
+// (async () => {
+//   const l = new Linear(process.env.LINEAR_API_KEY as string);
 
-//   await l.addStartCommentToIssue(subIssues[0].id);
-})();
+//   await l.init();
+
+//   l.info();
+
+//   //   const issues = await l.getAllIssues();
+
+//   //   issues.map((i) => console.log(i));
+
+//   const issues = await l.getAllIssuesInCurrentSprint();
+
+//   issues.map((i) => console.log(i.title));
+// })();
