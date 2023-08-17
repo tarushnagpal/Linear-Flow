@@ -9,6 +9,7 @@
   "categories": [
     "Other"
   ],
+  "icon": "media/linear.png",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
@@ -17,7 +18,7 @@
         {
           "id": "ticket-explorer",
           "title": "Ticket Explorer",
-          "icon": "media/dep.svg"
+          "icon": "src/media/linear1.png"
         }
       ]
     },
@@ -47,10 +48,23 @@
         "title": "Show Current Ticket"
       },
       {
-        "command": "ticket-connect.openTicketInEditor",
-        "title": "Open Current TIcket in Editor"
+        "command": "ticket-connect.openTicketInWebView",
+        "title": "Open Current TIcket in Web View"
+      },
+      {
+        "command": "ticket-connect.refreshTicket",
+        "title": "Refresh"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "ticket-connect.refreshTicket",
+          "when": "view == linearIssues",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -74,7 +88,9 @@
     "typescript": "^5.1.3"
   },
   "dependencies": {
+    "@hyperbeam/web": "^0.0.30",
     "@linear/sdk": "^7.0.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "marked": "^7.0.3"
   }
 }

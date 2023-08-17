@@ -2,12 +2,13 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import Linear from '../services/linear/linear';
+import { Issue } from '@linear/sdk';
 
 class IssueType extends vscode.TreeItem {
   constructor(
     public readonly title: string,
   ) {
-    super(title, vscode.TreeItemCollapsibleState.Collapsed);
+    super(title, title.startsWith('Current') ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed);
   }
 
   public get type() {
@@ -20,13 +21,23 @@ class IssueType extends vscode.TreeItem {
   };
 }
 
-class LinearIssue extends vscode.TreeItem {
+export class LinearIssue extends vscode.TreeItem {
+  issue: Issue;
+  
   constructor(
     public readonly title: string,
+    public readonly _issue: Issue,
     public readonly description?: string,
   ) {
     super(title, vscode.TreeItemCollapsibleState.None);
     this.tooltip = `${this.label}`;
+    this.issue = _issue;
+
+    this.command = {
+      title: 'Open',
+      command: 'ticket-connect.openTicketInWebView',
+      arguments: [this.issue]
+    };
   }
 
   public get type() {
@@ -51,7 +62,6 @@ export class LinearIssueProvider implements vscode.TreeDataProvider<LinearIssue 
   #linear: Linear;
 
   constructor(linearKey: string) {
-    console.log('constructred');
     this.#linear = new Linear(linearKey);
   }
 
@@ -79,7 +89,7 @@ export class LinearIssueProvider implements vscode.TreeDataProvider<LinearIssue 
   private async getIssues(type: 'current' | 'all'): Promise<LinearIssue[]> {
     const issues = type === 'current' ? await this.#linear.getAllIssuesInCurrentSprint() : await this.#linear.getAllIssues();
     console.log('gotIssues');
-    return issues.map(issue => new LinearIssue(issue.title, issue.description));
+    return issues.map(issue => new LinearIssue(issue.title, issue, issue.description));
   }
 
 }
