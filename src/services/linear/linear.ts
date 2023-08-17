@@ -1,10 +1,7 @@
-require("dotenv").config();
-
 import { LinearClient, LinearFetch, User, Issue, Team } from "@linear/sdk";
 import {
   IdComparator,
   NullableCycleFilter,
-  PaginationOrderBy,
 } from "@linear/sdk/dist/_generated_documents";
 
 // get all issues
@@ -36,7 +33,7 @@ export default class Linear {
 
   async getAllIssues(): Promise<Issue[]> {
     const myIssues = await this.me.assignedIssues({
-      orderBy: PaginationOrderBy.CreatedAt,
+      // orderBy: PaginationOrderBy.CreatedAt,
     });
 
     return myIssues.nodes;
