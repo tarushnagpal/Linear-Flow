@@ -1,6 +1,14 @@
-import { LinearClient, LinearFetch, User, Issue, Team } from "@linear/sdk";
+import {
+  LinearClient,
+  LinearFetch,
+  User,
+  Issue,
+  Team,
+  CommentPayload,
+} from "@linear/sdk";
 import {
   IdComparator,
+  IssueFilter,
   NullableCycleFilter,
 } from "@linear/sdk/dist/_generated_documents";
 
@@ -15,7 +23,7 @@ export default class Linear {
   teams: Team[] = [];
 
   constructor(apiKey: string) {
-    console.log('test', apiKey);
+    console.log("test", apiKey);
     this.linearClient = new LinearClient({ apiKey });
   }
 
@@ -93,10 +101,57 @@ export default class Linear {
     });
   }
 
-  async addStartCommentToIssue(issueId: string) {
-    await this.linearClient.createComment({
-      issueId: issueId,
-      body: "Started at: " + new Date().toLocaleString(),
+  async addStartCommentToIssue(issueIdentifier: string) {
+    console.log("adding start comment to issue", issueIdentifier);
+
+    const issues = await this.me.assignedIssues({});
+
+    const trimmedIssueIdentifier = issueIdentifier.trimStart().trimEnd();
+
+    issues.nodes.map(async (i) => {
+      // console.log("issue", i.identifier, i.identifier.trimStart().trimEnd() === issueIdentifier.trimStart().trimEnd());
+      if (i.identifier.trimStart().trimEnd() === trimmedIssueIdentifier) {
+        console.log("creating comment for issue", i.identifier);
+        await this.linearClient.createComment({
+          issueId: i.id,
+          body: "Started at: " + new Date().toLocaleString(),
+        });
+      }
+    });
+  }
+
+  async addEndCommentToIssue(issueIdentifier: string) {
+    const issue = await this.me.assignedIssues({});
+
+    const trimmedIssueIdentifier = issueIdentifier.trimStart().trimEnd();
+
+    issue.nodes.map(async (i) => {
+      if (i.identifier.trimStart().trimEnd() === trimmedIssueIdentifier) {
+        await this.linearClient.createComment({
+          issueId: i.id,
+          body: "Ended at: " + new Date().toLocaleString(),
+        });
+      }
+    });
+  }
+
+  async updateIssueComment(issueIdentifier: string) {
+    const issue = await this.me.assignedIssues({});
+
+    const trimmedIssueIdentifier = issueIdentifier.trimStart().trimEnd();
+
+    issue.nodes.map(async (i) => {
+      if (i.identifier.trimStart().trimEnd() === trimmedIssueIdentifier) {
+        const comments = await i.comments();
+
+        comments.nodes.map(async (c) => {
+          if (c.body.startsWith("Ended at:")) {
+            await this.linearClient.updateComment(c.id, {
+              body: "Ended at: " + new Date().toLocaleString(),
+            });
+          }
+        });
+      }
     });
   }
 }
@@ -138,18 +193,18 @@ export default class Linear {
 //   });
 // }
 
-// (async () => {
-//   const l = new Linear(process.env.LINEAR_API_KEY as string);
+(async () => {
+  const l = new Linear(process.env.LINEAR_API_KEY as string);
 
-//   await l.init();
+  await l.init();
 
-//   l.info();
+  l.info();
 
-//   //   const issues = await l.getAllIssues();
+  //   const issues = await l.getAllIssues();
 
-//   //   issues.map((i) => console.log(i));
+  //   issues.map((i) => console.log(i));
 
-//   const issues = await l.getAllIssuesInCurrentSprint();
+  const issues = await l.getAllIssuesInCurrentSprint();
 
-//   issues.map((i) => console.log(i.title));
-// })();
+  issues.map((i) => console.log(i));
+})();
