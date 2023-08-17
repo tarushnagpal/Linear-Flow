@@ -35,7 +35,7 @@ class Linear {
 
   async getAllIssues(): Promise<Issue[]> {
     const myIssues = await this.me.assignedIssues({
-        orderBy: PaginationOrderBy.CreatedAt,
+      orderBy: PaginationOrderBy.CreatedAt,
     });
 
     return myIssues.nodes;
@@ -63,7 +63,15 @@ class Linear {
     });
     let issues: Issue[] = [];
     const teamIssues = await Promise.all(issuePromises);
-    teamIssues.map((ti) => ti.map((issue) => issues.push(issue)));
+    teamIssues.map((ti) =>
+      ti.map(async (issue) => {
+        const parent = await issue.parent;
+
+        if (parent === undefined) {
+          issues.push(issue);
+        }
+      })
+    );
 
     return issues;
   }
@@ -89,8 +97,8 @@ class Linear {
 
   async addStartCommentToIssue(issueId: string) {
     await this.linearClient.createComment({
-        issueId: issueId,
-        body: "Started at: " + new Date().toLocaleString(),
+      issueId: issueId,
+      body: "Started at: " + new Date().toLocaleString(),
     });
   }
 }
@@ -114,11 +122,11 @@ class Linear {
 
   //   await l.addSubIssueToIssue("c4196cb6-0690-4265-bf6a-678a033c40fc", "2f7a26d1-c460-4f44-bc4f-80bb5dc4e92b");
 
-  const subIssues = await l.getSubIssuesOfIssues(
-    "2f7a26d1-c460-4f44-bc4f-80bb5dc4e92b"
-  );
+//   const subIssues = await l.getSubIssuesOfIssues(
+//     "2f7a26d1-c460-4f44-bc4f-80bb5dc4e92b"
+//   );
 
-  console.log(subIssues);
+//   console.log(subIssues);
 
-    await l.addStartCommentToIssue(subIssues[0].id);
+//   await l.addStartCommentToIssue(subIssues[0].id);
 })();
