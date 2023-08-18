@@ -12,12 +12,17 @@
   "icon": "media/linear.png",
   "activationEvents": [],
   "main": "./out/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CallMeTarush/ticket-connect.git"
+  },
+  "publisher": "LinearFlow",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
           "id": "ticket-explorer",
-          "title": "Ticket Explorer",
+          "title": "Linear Flow",
           "icon": "media/linear1.png"
         }
       ]
@@ -27,8 +32,7 @@
         {
           "id": "linearIssues",
           "name": "Linear Issues",
-          "icon": "media/dep.svg",
-          "contextualTitle": "Package Explorer"
+          "contextualTitle": "Linear Issues"
         }
       ]
     },

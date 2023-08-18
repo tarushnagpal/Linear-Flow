@@ -32,7 +32,7 @@ export function getWebviewContent(issue: Issue, comments: Comment[], state?: Wor
                     }</div>`);
                 })}
             </div>
-            <div onclick="openInEditor()" style="color:rgb(210,211,224); font-size: 15px; margin-top: 20px;">
+            <div onclick="openInEditor()" style="color:rgb(210,211,224); font-size: 15px; margin-top: 20px; cursor: pointer;">
                 <u>Open in editor</u>
             </div>
         </div>
