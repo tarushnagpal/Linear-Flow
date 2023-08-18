@@ -17,7 +17,6 @@ const linearAPIStorageKey = "LINEAR_API_STORAGE_KEY";
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  console.log("start of active");
 
   const apiKey = context.globalState.get(linearAPIStorageKey);
   if (apiKey && (apiKey as string).startsWith("lin_api")) {
@@ -33,20 +32,18 @@ export function activate(context: vscode.ExtensionContext) {
         `cd ${pwd} && git rev-parse --abbrev-ref HEAD`,
         async (err, stdout, stderr) => {
           if (err) {
-            console.log("err", err);
+            console.error(err);
             return;
           }
 
           const branches = stdout.split("/");
 
           if (branches.length <= 1) {
-            console.log("incorrect branch format");
+            console.error("incorrect branch format");
             return;
           }
 
           const issueIdentifier = branches[1].toLocaleUpperCase();
-
-		  console.log('issueIdentifier', issueIdentifier);
 
           await linearIssueProvider.linear.addStartCommentToIssue(issueIdentifier);
           await linearIssueProvider.linear.addEndCommentToIssue(issueIdentifier);
@@ -60,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   vscode.commands.registerCommand(
-    "ticket-connect.inputLinearApiKey",
+   "linear-flow.inputLinearApiKey",
     async () => {
       const input = await vscode.window.showInputBox({
         placeHolder: "lin_api_*",
@@ -79,49 +76,46 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   vscode.commands.registerCommand(
-    "ticket-connect.openTicketInWebView",
+   "linear-flow.openTicketInWebView",
     async (issue: Issue) => {
-      console.log("got", issue);
 
       // Create and show a new webview
-	const panel = vscode.window.createWebviewPanel(
-		'ticketDetails', // Identifies the type of the webview. Used internally
-		'Ticket Details', // Title of the panel displayed to the user
-		vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
-		{
-			enableScripts: true,
-		}
-	);
-	const [comments, state] = await Promise.all([issue.comments(), issue.state]);
-	panel.webview.html = getWebviewContent(issue, comments.nodes, state);
+	    const panel = vscode.window.createWebviewPanel(
+        'ticketDetails', // Identifies the type of the webview. Used internally
+        'Ticket Details', // Title of the panel displayed to the user
+        vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
+        {
+          enableScripts: true,
+        }
+      );
+      const [comments, state] = await Promise.all([issue.comments(), issue.state]);
+      panel.webview.html = getWebviewContent(issue, comments.nodes, state);
 
-	panel.webview.onDidReceiveMessage(
-		(message) => {
-			switch (message.command) {
-			case "openineditor":
-				vscode.commands.executeCommand(
-				"ticket-connect.openTicketInEditor",
-				[issue.branchName]
-				);
-				return;
-			}
-		},
-		undefined,
-		context.subscriptions
-	);
+      panel.webview.onDidReceiveMessage(
+        (message) => {
+          switch (message.command) {
+          case "openineditor":
+            vscode.commands.executeCommand(
+           "linear-flow.openTicketInEditor",
+            [issue.branchName]
+            );
+            return;
+          }
+        },
+        undefined,
+        context.subscriptions
+      );
     }
   );
 
   vscode.commands.registerCommand(
-    "ticket-connect.openTicketInEditor",
+   "linear-flow.openTicketInEditor",
     async (branchName: string) => {
-      console.log("got", branchName);
-      // const branchName = issue.branchName;
 
       const pwd = vscode.workspace.workspaceFolders![0].uri.path;
       exec(`ls ${pwd}/../`, (err, stdout, stderr) => {
         if (err) {
-          console.log("err", err);
+          console.error(err);
           return;
         }
 
@@ -134,10 +128,10 @@ export function activate(context: vscode.ExtensionContext) {
           quickPick.busy = true;
           const folderPath = pwd + "/../" + selection[0].label;
           exec(
-            `cd ${folderPath} && git checkout -b ${branchName} && git commit -m "branch created from ticket-connect" --allow-empty --no-verify && git push origin ${branchName}`,
+            `cd ${folderPath} && git checkout -b ${branchName} && git commit -m "branch created from linear-flow" --allow-empty --no-verify && git push origin ${branchName}`,
             (err, stdout, stderr) => {
               if (err) {
-                console.log("err", err);
+                console.error(err);
                 return;
               }
 
@@ -147,22 +141,6 @@ export function activate(context: vscode.ExtensionContext) {
               quickPick.hide();
             }
           );
-
-          // exec(`cd ${folderPath} && git commit -m "branch created from ticket-connect" --allow-empty`, (err, stdout, stderr) => {
-          // 	if (err) {
-          // 		console.log('err', err);
-          // 		return;
-          // 	}
-
-          // 	console.log('stdout', stdout);
-
-          // 	exec(`cd ${folderPath} && git push origin ${branchName}`, (err, stdout, stderr) => {
-          // 		if (err) {
-          // 			console.log('err', err);
-          // 			return;
-          // 		}
-          // 	});
-          // });
         });
 
         quickPick.onDidHide(() => quickPick.dispose());

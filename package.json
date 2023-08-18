@@ -1,6 +1,6 @@
 {
-  "name": "ticket-connect",
-  "displayName": "ticket-connect",
+  "name": "linear-flow",
+  "displayName": "linear-flow",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -35,31 +35,31 @@
     "viewsWelcome": [
       {
         "view": "linearIssues",
-        "contents": "No linear api key found; [find key](https://linear.app/dyte/settings/api).\n[Add Linear Key](command:ticket-connect.inputLinearApiKey)"
+        "contents": "No linear api key found; [find key](https://linear.app/dyte/settings/api).\n[Add Linear Key](command:linear-flow.inputLinearApiKey)"
       }
     ],
     "commands": [
       {
-        "command": "ticket-connect.inputLinearApiKey",
+        "command":"linear-flow.inputLinearApiKey",
         "title": "Input Linear Key"
       },
       {
-        "command": "ticket-connect.showTicket",
+        "command":"linear-flow.showTicket",
         "title": "Show Current Ticket"
       },
       {
-        "command": "ticket-connect.openTicketInWebView",
+        "command":"linear-flow.openTicketInWebView",
         "title": "Open Current TIcket in Web View"
       },
       {
-        "command": "ticket-connect.refreshTicket",
+        "command":"linear-flow.refreshTicket",
         "title": "Refresh"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "ticket-connect.refreshTicket",
+          "command":"linear-flow.refreshTicket",
           "when": "view == linearIssues",
           "group": "navigation"
         }

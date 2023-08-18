@@ -23,7 +23,6 @@ export default class Linear {
   teams: Team[] = [];
 
   constructor(apiKey: string) {
-    console.log("test", apiKey);
     this.linearClient = new LinearClient({ apiKey });
   }
 
@@ -31,12 +30,6 @@ export default class Linear {
     this.me = await this.linearClient.viewer;
 
     this.teams = (await this.me.teams()).nodes;
-  }
-
-  info() {
-    console.log(this.me.name);
-
-    this.teams.forEach((t) => console.log(t.name));
   }
 
   async getAllIssues(): Promise<Issue[]> {
@@ -102,16 +95,13 @@ export default class Linear {
   }
 
   async addStartCommentToIssue(issueIdentifier: string) {
-    console.log("adding start comment to issue", issueIdentifier);
 
     const issues = await this.me.assignedIssues({});
 
     const trimmedIssueIdentifier = issueIdentifier.trimStart().trimEnd();
 
     issues.nodes.map(async (i) => {
-      // console.log("issue", i.identifier, i.identifier.trimStart().trimEnd() === issueIdentifier.trimStart().trimEnd());
       if (i.identifier.trimStart().trimEnd() === trimmedIssueIdentifier) {
-        console.log("creating comment for issue", i.identifier);
         await this.linearClient.createComment({
           issueId: i.id,
           body: "Started at: " + new Date().toLocaleString(),
@@ -155,56 +145,3 @@ export default class Linear {
     });
   }
 }
-
-// const linearClient = new LinearClient({ apiKey: process.env.LINEAR_API_KEY });
-
-// async function getMyIssues() {
-//   const me = await linearClient.viewer;
-//   const myIssues = await me.assignedIssues({
-//     filter: {
-//       cycle,
-//     },
-//   });
-
-//   if (myIssues.nodes.length) {
-//     myIssues.nodes.map((issue) =>
-//       console.log(`${me.displayName} has issue: ${issue.title}`)
-//     );
-//   } else {
-//     console.log(`${me.displayName} has no issues`);
-//   }
-
-//   const ts = await linearClient.teams();
-
-//   ts.nodes.map(async (t) => {
-//     if (t.name === "Socket and Livestreaming") {
-//       console.log(t.name);
-
-//       const cycles = await t.cycles();
-
-//       const now = new Date();
-
-//       cycles.nodes.map((c) => {
-//         if (c.startsAt <= now && c.endsAt > now) {
-//           console.log(c);
-//         }
-//       });
-//     }
-//   });
-// }
-
-(async () => {
-  const l = new Linear(process.env.LINEAR_API_KEY as string);
-
-  await l.init();
-
-  l.info();
-
-  //   const issues = await l.getAllIssues();
-
-  //   issues.map((i) => console.log(i));
-
-  const issues = await l.getAllIssuesInCurrentSprint();
-
-  issues.map((i) => console.log(i));
-})();

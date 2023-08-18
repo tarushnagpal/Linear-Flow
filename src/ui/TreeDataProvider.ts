@@ -33,7 +33,7 @@ export class LinearIssue extends vscode.TreeItem {
 
     this.command = {
       title: 'Open',
-      command: 'ticket-connect.openTicketInWebView',
+      command: 'linear-flow.openTicketInWebView',
       arguments: [this.issue]
     };
     
