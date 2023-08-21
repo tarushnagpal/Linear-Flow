@@ -49,7 +49,7 @@ export class LinearIssue extends vscode.TreeItem {
 
 }
 
-const currentSprintTitle = 'Current Sprint';
+const currentSprintTitle = 'Current Cycle';
 const allIssueTitle = 'All Issues';
 
 const issueTypes = [
