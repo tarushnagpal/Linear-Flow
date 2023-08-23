@@ -14,7 +14,7 @@
   "main": "./out/extension.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CallMeTarush/ticket-connect.git"
+    "url": "git+https://github.com/tarushnagpal/linear-flow.git"
   },
   "publisher": "LinearFlow",
   "contributes": {
