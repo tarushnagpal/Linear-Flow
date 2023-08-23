@@ -1,8 +1,8 @@
 {
   "name": "linear-flow",
-  "displayName": "linear-flow",
-  "description": "",
-  "version": "0.0.4",
+  "displayName": "Linear Flow",
+  "description": "An easy way to view all your linear issues, see a brief description of them and to checkout a branch in a chosen editor while also getting to report when you started/stopped working on the issue",
+  "version": "0.0.5",
   "engines": {
     "vscode": "^1.81.0"
   },
