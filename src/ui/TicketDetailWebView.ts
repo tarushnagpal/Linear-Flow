@@ -9,8 +9,8 @@ export function getWebviewContent(issue: Issue, comments: Comment[], state?: Wor
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Ticket Details</title>
         <script>
+            const vscode = acquireVsCodeApi();
             function openInEditor() {
-                const vscode = acquireVsCodeApi();
                 vscode.postMessage({
                     command: 'openineditor'
                 })

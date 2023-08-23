@@ -1,16 +1,14 @@
 import {
   LinearClient,
-  LinearFetch,
   User,
   Issue,
   Team,
-  CommentPayload,
 } from "@linear/sdk";
 import {
   IdComparator,
-  IssueFilter,
   NullableCycleFilter,
 } from "@linear/sdk/dist/_generated_documents";
+import * as vscode from "vscode";
 
 // get all issues
 // attach a sub issue to an issue
@@ -18,6 +16,7 @@ import {
 // fetch the details for the sub issue like the id, checkout branch
 
 export default class Linear {
+
   linearClient: LinearClient;
   me: User = {} as User;
   teams: Team[] = [];
@@ -28,9 +27,9 @@ export default class Linear {
 
   async init() {
     this.me = await this.linearClient.viewer;
-
     this.teams = (await this.me.teams()).nodes;
   }
+
 
   async getAllIssues(): Promise<Issue[]> {
     const myIssues = await this.me.assignedIssues({

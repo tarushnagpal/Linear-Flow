@@ -27,7 +27,20 @@ export function activate(context: vscode.ExtensionContext) {
         linearIssueProvider
       );
 
-      const pwd = vscode.workspace.workspaceFolders![0].uri.path;
+
+      vscode.commands.registerCommand(
+        "linear-flow.refreshTicket",
+        async () => {
+          linearIssueProvider.refresh();
+        }
+      );
+
+      const folders = vscode.workspace.workspaceFolders;
+      /**
+       * Will only reach this in case there is no workspace open
+       */
+      if (!folders) { return; }
+      const pwd = folders[0].uri.path;
       exec(
         `cd ${pwd} && git rev-parse --abbrev-ref HEAD`,
         async (err, stdout, stderr) => {
@@ -50,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		  setInterval(async () => {
 			  await linearIssueProvider.linear.updateIssueComment(issueIdentifier);
-		  }, 5 * 1000);
+		  }, 30 * 1000);
         }
       );
     });
@@ -68,9 +81,15 @@ export function activate(context: vscode.ExtensionContext) {
 
       // Only set when successful
       context.globalState.update(linearAPIStorageKey, input);
-      const x = vscode.window.registerTreeDataProvider(
+      vscode.window.registerTreeDataProvider(
         "linearIssues",
         linearIssueProvider
+      );
+      vscode.commands.registerCommand(
+        "linear-flow.refreshTicket",
+        async () => {
+          linearIssueProvider.refresh();
+        }
       );
     }
   );
@@ -112,7 +131,15 @@ export function activate(context: vscode.ExtensionContext) {
    "linear-flow.openTicketInEditor",
     async (branchName: string) => {
 
-      const pwd = vscode.workspace.workspaceFolders![0].uri.path;
+      const folders = vscode.workspace.workspaceFolders;
+      /**
+       * Will only reach this in case there is no workspace open
+       */
+      if (!folders) {
+        vscode.window.showErrorMessage('Please open your work directory before trying to open an issue!');
+        return;
+      }
+      const pwd = folders[0].uri.path;
       exec(`ls ${pwd}/../`, (err, stdout, stderr) => {
         if (err) {
           console.error(err);

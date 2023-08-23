@@ -58,10 +58,18 @@ const issueTypes = [
 ];
 
 export class LinearIssueProvider implements vscode.TreeDataProvider<LinearIssue | IssueType> {
+
+  private _onDidChangeTreeData: vscode.EventEmitter<LinearIssue | undefined | void> = new vscode.EventEmitter<LinearIssue | undefined | void>();
+	readonly onDidChangeTreeData: vscode.Event<LinearIssue | undefined | void> = this._onDidChangeTreeData.event;
+
   #linear: Linear;
 
   constructor(linearKey: string) {
     this.#linear = new Linear(linearKey);
+  }
+
+  public refresh() {
+    this._onDidChangeTreeData.fire();
   }
 
   get linear() {
